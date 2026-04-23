@@ -26,17 +26,28 @@ public class LinkedList<T> implements List<T> {
 
   @Override
   public T get(int index) {
-    return null;
+    if(index < 0 || index >= size)
+      throw new IndexOutOfBoundsException();
+    Node<T> current = head;
+    for(int i = 0; i < index; i++)
+      current = current.next;
+    return (T) current.value;
   }
 
   @Override
   public int position(T element) {
-    return 0;
+    Node<T> current = head;
+    for(int i = 0; i < this.size; i++){
+      if(current.value == element)
+        return i;
+      current = current.next;
+    }
+    return -1;
   }
 
   @Override
   public boolean addByIndex(int index, T element) {
-    if (index < 0 || index >= this.size)
+    if (index < 0 || index > this.size)
       return false;
     if (index == this.size)
       return add(element);
@@ -44,12 +55,12 @@ public class LinkedList<T> implements List<T> {
     if (index == 0) {
       newNode.next = this.head;
       this.head = newNode;
-    } else if (index < this.size) {
-      Node<T> node = this.head;
+    } else {
+      Node<T> current = this.head;
       for (int i = 0; i < index - 1; i++)
-        node = node.next;
-      newNode.next = node.next;
-      node.next = newNode;
+        current = current.next;
+      newNode.next = current.next;
+      current.next = newNode;
     }
     this.size++;
     return true;
@@ -69,16 +80,33 @@ public class LinkedList<T> implements List<T> {
 
   @Override
   public boolean removeByIndex(int index) {
-    return false;
+    if (index < 0 || index >= this.size)
+      return false;
+    if (index == 0) {
+      this.head = this.head.next;
+      if (this.head == null)
+        this.tail = null;
+    } else {
+      Node<T> node = this.head;
+      for (int i = 0; i < index - 1; i++)
+        node = node.next;
+      node.next = node.next.next;
+      if (index == this.size - 1) {
+        this.tail = node;
+      }
+    }
+    this.size--;
+    return true;
   }
 
   @Override
   public boolean remove(T element) {
-    return false;
+    int index = this.position(element);
+    return removeByIndex(index);
   }
 
   @Override
   public int size() {
-    return 0;
+    return this.size;
   }
 }
