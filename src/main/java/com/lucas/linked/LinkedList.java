@@ -4,7 +4,7 @@ import com.lucas.util.List;
 
 public class LinkedList<T> implements List<T> {
 
-  private class Node<T> {
+  private static class Node<T> {
     private T value;
     private Node<T> next;
 
@@ -103,6 +103,17 @@ public class LinkedList<T> implements List<T> {
   public boolean remove(T element) {
     int index = this.position(element);
     return removeByIndex(index);
+  }
+
+  @Override
+  public boolean replace(T element, int index) {
+    if(index < 0 || index >= this.size)
+      return false;
+    Node<T> current = this.head;
+    for(int i = 0; i < index; i++)
+      current = current.next;
+    current.value = element;
+    return true;
   }
 
   @Override

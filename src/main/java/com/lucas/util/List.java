@@ -13,5 +13,7 @@ public interface List<T> {
 
   boolean remove(T element);
 
+  boolean replace(T element, int index);
+
   int size();
 }

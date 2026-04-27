@@ -87,6 +87,14 @@ public class ArrayList<T> implements List<T> {
   }
 
   @Override
+  public boolean replace(T element, int index) {
+    if(index < 0 || index >= this.size)
+      throw new IndexOutOfBoundsException("Index:" + index);
+    this.array[index] = element;
+    return true;
+  }
+
+  @Override
   public int size() {
     return this.size;
   }
