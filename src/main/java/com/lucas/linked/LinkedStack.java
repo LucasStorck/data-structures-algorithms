@@ -4,6 +4,10 @@ import com.lucas.util.Stack;
 
 import java.util.EmptyStackException;
 
+/**
+ * {@link Stack} backed by singly linked nodes; the tail pointer is the top of the stack, so
+ * {@code push} is O(1) but {@code pop} must walk from the head to find the new tail.
+ */
 public class LinkedStack<T> implements Stack<T> {
 
   private static class Node<T> {
@@ -26,6 +30,9 @@ public class LinkedStack<T> implements Stack<T> {
     this.size = 0;
   }
 
+  /**
+   * Complexity: O(1).
+   */
   @Override
   public boolean push(T element) {
     Node<T> newNode = new Node<>(element);
@@ -38,6 +45,10 @@ public class LinkedStack<T> implements Stack<T> {
     return true;
   }
 
+  /**
+   * Complexity: O(n) — must walk from the head to find the node before the tail, since the
+   * list is singly linked (no {@code previous} pointer).
+   */
   @Override
   public T pop() {
     if (this.last == null)
@@ -58,6 +69,9 @@ public class LinkedStack<T> implements Stack<T> {
     return returnValue;
   }
 
+  /**
+   * Complexity: O(1) — the tail pointer gives direct access to the top.
+   */
   @Override
   public T peek() {
     if (this.size == 0)
