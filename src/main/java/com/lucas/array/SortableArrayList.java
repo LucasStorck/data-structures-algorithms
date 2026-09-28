@@ -2,62 +2,29 @@ package com.lucas.array;
 
 import com.lucas.util.SortableList;
 
-public class SortableArrayList <T extends Comparable<T>> implements SortableList<T>
-{
+/**
+ * {@link ArrayList} that can additionally sort itself in place via {@link #sort()}, using
+ * selection sort.
+ * <p>
+ * Complexity: O(n^2) time (two nested passes over the elements), O(1) extra space (sorts using
+ * only the existing array and one temporary variable). Not stable: equal elements can be
+ * reordered relative to each other, because a swap can jump an element past an equal one.
+ */
+public class SortableArrayList<T extends Comparable<T>> extends ArrayList<T> implements SortableList<T> {
+
   @Override
   public void sort() {
-    for(int j = 0; j < this.size() - 1; j++){
-      int position = j;
-      for(int i = j + 1; i < this.size(); i++){
-        if(this.get(i).compareTo(this.get(position)) < 0){
-          position = i;
-        }
-        if(position != j){
-          T temp = this.get(j);
-          this.replace(this.get(position), j);
-          this.replace(temp, position);
-        }
+    for (int i = 0; i < this.size() - 1; i++) {
+      int minIndex = i;
+      for (int j = i + 1; j < this.size(); j++) {
+        if (this.get(j).compareTo(this.get(minIndex)) < 0)
+          minIndex = j;
+      }
+      if (minIndex != i) {
+        T temp = this.get(i);
+        this.replace(this.get(minIndex), i);
+        this.replace(temp, minIndex);
       }
     }
-  }
-
-  @Override
-  public T get(int index) {
-    return null;
-  }
-
-  @Override
-  public int position(T element) {
-    return 0;
-  }
-
-  @Override
-  public boolean addByIndex(int index, T element) {
-    return false;
-  }
-
-  @Override
-  public boolean add(T element) {
-    return false;
-  }
-
-  @Override
-  public boolean removeByIndex(int index) {
-    return false;
-  }
-
-  @Override
-  public boolean remove(T element) {
-    return false;
-  }
-
-  @Override
-  public boolean replace(T element, int index) {
-    return false;
-  }
-
-  @Override
-  public int size() {
-    return 0;
   }
 }

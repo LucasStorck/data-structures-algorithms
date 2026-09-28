@@ -1,12 +1,17 @@
 package com.lucas.array;
+
 import com.lucas.util.Stack;
 
 import java.util.EmptyStackException;
 
+/**
+ * {@link Stack} backed by a resizable {@code Object[]}; the top of the stack is the last slot
+ * in use ({@code array[size - 1]}), so push/pop/peek never touch the front of the array.
+ */
 public class ArrayStack<T> implements Stack<T> {
 
-  final static private  int DEFAULT_INITIAL_CAPACITY = 10;
-  final static private  int DEFAULT_GROWTH_FACTOR = 5;
+  final static private int DEFAULT_INITIAL_CAPACITY = 10;
+  final static private int DEFAULT_GROWTH_FACTOR = 5;
 
   private int size;
   private Object[] array;
@@ -24,6 +29,9 @@ public class ArrayStack<T> implements Stack<T> {
     }
   }
 
+  /**
+   * Complexity: O(1) amortized — occasionally O(n) when the backing array must grow.
+   */
   @Override
   public boolean push(T newElement) {
     this.ensureCapacity();
@@ -32,6 +40,9 @@ public class ArrayStack<T> implements Stack<T> {
     return true;
   }
 
+  /**
+   * Complexity: O(1).
+   */
   @SuppressWarnings("unchecked")
   @Override
   public T pop() {
@@ -43,12 +54,15 @@ public class ArrayStack<T> implements Stack<T> {
     return (T) element;
   }
 
+  /**
+   * Complexity: O(1).
+   */
   @SuppressWarnings("unchecked")
   @Override
   public T peek() {
     if (this.size == 0)
-      throw new IllegalStateException("Stack is empty");
-    return (T) this.array[0];
+      throw new EmptyStackException();
+    return (T) this.array[this.size - 1];
   }
 
   @Override

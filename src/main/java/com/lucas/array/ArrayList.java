@@ -2,6 +2,15 @@ package com.lucas.array;
 
 import com.lucas.util.List;
 
+/**
+ * {@link List} backed by a contiguous, resizable {@code Object[]}.
+ * <p>
+ * Growth strategy: when full, the backing array grows by a fixed
+ * {@link #DEFAULT_GROWTH_FACTOR} (arithmetic growth), not by doubling (geometric growth) like
+ * {@code java.util.ArrayList}. That makes inserting {@code n} elements cost O(n^2/DEFAULT_GROWTH_FACTOR)
+ * copied slots overall instead of O(n) amortized — a deliberate contrast worth comparing against
+ * {@code java.util.ArrayList}'s doubling strategy.
+ */
 public class ArrayList<T> implements List<T> {
 
   final private static int DEFAULT_CAPACITY = 10;
@@ -25,6 +34,9 @@ public class ArrayList<T> implements List<T> {
     }
   }
 
+  /**
+   * Complexity: O(1) — direct array indexing.
+   */
   @SuppressWarnings("unchecked")
   @Override
   public T get(int index) {
@@ -33,6 +45,10 @@ public class ArrayList<T> implements List<T> {
     return (T) this.array[index];
   }
 
+  /**
+   * Complexity: O(n) — linear scan; must compare every element until a match (or the end) is
+   * found.
+   */
   @Override
   public int position(T element) {
     for (int i = 0; i < this.size; i++) {
@@ -44,9 +60,13 @@ public class ArrayList<T> implements List<T> {
           return i;
       }
     }
-    throw new IndexOutOfBoundsException("Index:" + this.size + " Element:" + element);
+    return EMPTY;
   }
 
+  /**
+   * Complexity: O(n) — every element from {@code index} onward is shifted one slot to the right;
+   * occasionally O(n) extra for a resize.
+   */
   @Override
   public boolean addByIndex(int index, T element) {
     if (index < 0 || index > this.size)
@@ -59,6 +79,9 @@ public class ArrayList<T> implements List<T> {
     return true;
   }
 
+  /**
+   * Complexity: O(1) amortized — occasionally O(n) when the backing array must grow.
+   */
   @Override
   public boolean add(T element) {
     this.ensureCapacity();
@@ -67,6 +90,9 @@ public class ArrayList<T> implements List<T> {
     return true;
   }
 
+  /**
+   * Complexity: O(n) — every element after {@code index} is shifted one slot to the left.
+   */
   @Override
   public boolean removeByIndex(int index) {
     if (index < 0 || index >= this.size)
@@ -78,6 +104,9 @@ public class ArrayList<T> implements List<T> {
     return true;
   }
 
+  /**
+   * Complexity: O(n) — {@link #position} scans linearly, then {@link #removeByIndex} shifts.
+   */
   @Override
   public boolean remove(T element) {
     int index = this.position(element);
@@ -86,9 +115,12 @@ public class ArrayList<T> implements List<T> {
     return removeByIndex(index);
   }
 
+  /**
+   * Complexity: O(1) — direct array indexing.
+   */
   @Override
   public boolean replace(T element, int index) {
-    if(index < 0 || index >= this.size)
+    if (index < 0 || index >= this.size)
       throw new IndexOutOfBoundsException("Index:" + index);
     this.array[index] = element;
     return true;
