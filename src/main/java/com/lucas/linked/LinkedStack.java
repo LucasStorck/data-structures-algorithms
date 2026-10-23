@@ -5,8 +5,12 @@ import com.lucas.util.Stack;
 import java.util.EmptyStackException;
 
 /**
- * {@link Stack} backed by singly linked nodes; the tail pointer is the top of the stack, so
- * {@code push} is O(1) but {@code pop} must walk from the head to find the new tail.
+ * {@link Stack} backed by singly linked nodes; the head node is the top of the stack, so
+ * push/pop/peek only ever touch the first node and never walk the list.
+ * <p>
+ * Keeping the top at the head (not the tail) is what makes {@code pop} O(1) in a singly linked
+ * list: removing the head only needs {@code head.next}, while removing the tail would need the
+ * node <em>before</em> it, which can only be found by walking from the head.
  */
 public class LinkedStack<T> implements Stack<T> {
 
@@ -14,69 +18,51 @@ public class LinkedStack<T> implements Stack<T> {
     private Node<T> next;
     private T value;
 
-    public Node(T value) {
-      this.next = null;
+    public Node(T value, Node<T> next) {
+      this.next = next;
       this.value = value;
     }
   }
 
-  private Node<T> first;
-  private Node<T> last;
+  private Node<T> top;
   private int size;
 
   public LinkedStack() {
-    this.first = null;
-    this.last = null;
+    this.top = null;
     this.size = 0;
+  }
+
+  /**
+   * Complexity: O(1) — the new node becomes the head.
+   */
+  @Override
+  public boolean push(T element) {
+    this.top = new Node<>(element, this.top);
+    this.size++;
+    return true;
+  }
+
+  /**
+   * Complexity: O(1) — the head is unlinked and its successor becomes the new top.
+   */
+  @Override
+  public T pop() {
+    if (this.top == null)
+      throw new EmptyStackException();
+    T returnValue = this.top.value;
+    this.top = this.top.next;
+    this.size--;
+    return returnValue;
   }
 
   /**
    * Complexity: O(1).
    */
   @Override
-  public boolean push(T element) {
-    Node<T> newNode = new Node<>(element);
-    if (this.size == 0)
-      this.first = newNode;
-    else
-      this.last.next = newNode;
-    this.last = newNode;
-    this.size++;
-    return true;
-  }
-
-  /**
-   * Complexity: O(n) — must walk from the head to find the node before the tail, since the
-   * list is singly linked (no {@code previous} pointer).
-   */
-  @Override
-  public T pop() {
-    if (this.last == null)
-      throw new EmptyStackException();
-    T returnValue = this.last.value;
-    if (this.last == this.first) {
-      this.last = null;
-      this.first = null;
-
-    } else {
-      Node<T> current = this.first;
-      while (current.next != this.last)
-        current = current.next;
-      this.last = current;
-      this.last.next = null;
-    }
-    this.size--;
-    return returnValue;
-  }
-
-  /**
-   * Complexity: O(1) — the tail pointer gives direct access to the top.
-   */
-  @Override
   public T peek() {
-    if (this.size == 0)
+    if (this.top == null)
       throw new EmptyStackException();
-    return this.last.value;
+    return this.top.value;
   }
 
   @Override

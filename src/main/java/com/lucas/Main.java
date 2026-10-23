@@ -7,6 +7,7 @@ import com.lucas.array.SortableArrayList;
 import com.lucas.linked.LinkedList;
 import com.lucas.linked.LinkedQueue;
 import com.lucas.linked.LinkedStack;
+import com.lucas.sort.Sorting;
 import com.lucas.util.List;
 import com.lucas.util.Queue;
 import com.lucas.util.Stack;
@@ -76,6 +77,19 @@ public class Main {
     IO.println("before sort: " + toString(list));
     list.sort();
     IO.println("after sort: " + toString(list));
+    IO.println();
+
+    IO.println("--- Sorting.mergeSort / Sorting.quickSort ---");
+    List<Integer> mergeSorted = new ArrayList<>();
+    List<Integer> quickSorted = new LinkedList<>();
+    for (int value : new int[] {5, 3, 8, 1, 9, 2}) {
+      mergeSorted.add(value);
+      quickSorted.add(value);
+    }
+    Sorting.mergeSort(mergeSorted);
+    Sorting.quickSort(quickSorted);
+    IO.println("mergeSort on ArrayList: " + toString(mergeSorted));
+    IO.println("quickSort on LinkedList: " + toString(quickSorted));
   }
 
   private static <T> String toString(List<T> list) {

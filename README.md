@@ -10,7 +10,7 @@ Requires Java 25. This project has no Maven Wrapper; use a local Maven installat
 IDE's Maven integration).
 
 ```bash
-mvn test                          # runs the 47 JUnit 5 tests
+mvn test                          # runs the 112 JUnit 5 tests
 mvn compile exec:java -Dexec.mainClass=com.lucas.Main   # or run Main from your IDE
 ```
 
@@ -24,6 +24,7 @@ firing up a debugger.
 com.lucas.util      -> interfaces: List, Stack, Queue, SortableList (the contract)
 com.lucas.array     -> ArrayList, ArrayStack, ArrayQueue, SortableArrayList (resizable array)
 com.lucas.linked    -> LinkedList, LinkedStack, LinkedQueue (linked nodes)
+com.lucas.sort      -> Sorting: selection sort, merge sort and quick sort over any List
 ```
 
 Each interface documents the contract (what each method guarantees, when it throws), and each
@@ -50,28 +51,43 @@ depends on the storage strategy, so it makes no sense to document it on the inte
 | Operation | `ArrayStack` | `LinkedStack` |
 |-----------|--------------|---------------|
 | `push`    | O(1) amort.  | O(1)          |
-| `pop`     | O(1)         | O(n)          |
+| `pop`     | O(1)         | O(1)          |
 | `peek`    | O(1)         | O(1)          |
 
 `ArrayStack` keeps the top in the last used slot (`array[size-1]`), so `push`/`pop`/`peek`
-never touch the start of the array. `LinkedStack` keeps the top in the `last` pointer: `push`
-and `peek` are O(1), but `pop` has to walk the whole list from the head to find the node before
-`last`, because the list only links forward (there is no `previous` pointer). This is the most
-interesting point of the comparison — the array implementation is strictly better here.
+never touch the start of the array. `LinkedStack` keeps the top at the **head** of the list:
+removing the head only needs `head.next`. (An earlier version kept the top at the tail, which
+made `pop` O(n) — in a forward-only linked list, removing the tail requires finding the node
+*before* it by walking from the head. The right end of the list to use as the top is the head.)
 
 | Operation | `ArrayQueue` | `LinkedQueue` |
 |-----------|--------------|---------------|
 | `push`    | O(1) amort.  | O(1)          |
-| `pop`     | O(n)         | O(1)          |
+| `pop`     | O(1)         | O(1)          |
 | `peek`    | O(1)         | O(1)          |
 
-`ArrayQueue` always keeps the front at `array[0]`, deliberately naive: every `pop` shifts all
-remaining elements one position to the left. A circular buffer (a moving head index instead of
-shifting) would make `pop` O(1) — a natural next exercise from here. `LinkedQueue`, with
-`first`/`last` pointers, is already O(1) everywhere.
+`ArrayQueue` is a **circular buffer**: it tracks the `head` index of the front and computes the
+back as `(head + size) % capacity`. `pop` just advances `head` (wrapping around the end of the
+array) instead of shifting every element left; when growing, elements are copied in queue order
+into the new array, which "unwraps" the buffer back to `head == 0`. `LinkedQueue`, with
+`first`/`last` pointers, is O(1) everywhere.
 
-`SortableArrayList` adds `sort()` via **selection sort**: O(n²) time, O(1) extra space, not
-stable (two equal elements may swap their relative order).
+## Sorting
+
+`com.lucas.sort.Sorting` implements three in-place algorithms that work on any `List` (reading
+and writing only through `get`/`replace`):
+
+| Algorithm        | Best       | Average    | Worst      | Extra space | Stable |
+|------------------|------------|------------|------------|-------------|--------|
+| `selectionSort`  | O(n²)      | O(n²)      | O(n²)      | O(1)        | no     |
+| `mergeSort`      | O(n log n) | O(n log n) | O(n log n) | O(n)        | yes    |
+| `quickSort`      | O(n log n) | O(n log n) | O(n²)      | O(log n)    | no     |
+
+These complexities assume O(1) indexed access (`ArrayList`); on `LinkedList` every
+`get`/`replace` is already O(n), multiplying the cost by another factor of n. `quickSort` uses
+the middle element as the pivot, which avoids the worst case on already sorted input.
+
+`SortableArrayList` adds `sort()` by delegating to `Sorting.selectionSort`.
 
 ## Design decisions
 
@@ -111,5 +127,4 @@ mvn test
 ## Possible next steps
 
 Out of the current scope, but natural paths for further exploration: a binary search tree, a
-custom hash table, a heap/priority queue, a circular buffer to fix `ArrayQueue`'s O(n) `pop`,
-and a `MergeSort`/`QuickSort` to compare with `SortableArrayList`'s selection sort.
+custom hash table and a heap/priority queue.

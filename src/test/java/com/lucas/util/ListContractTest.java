@@ -128,6 +128,54 @@ public abstract class ListContractTest {
   }
 
   @Test
+  void growsPastInitialCapacity() {
+    List<String> list = createList();
+    for (int i = 0; i < 100; i++)
+      list.add("e" + i);
+    list.addByIndex(0, "first");
+    assertEquals(101, list.size());
+    assertEquals("first", list.get(0));
+    assertEquals("e0", list.get(1));
+    assertEquals("e99", list.get(100));
+  }
+
+  @Test
+  void supportsNullElements() {
+    List<String> list = createList();
+    list.add("a");
+    list.add(null);
+    assertEquals(1, list.position(null));
+    assertTrue(list.remove(null));
+    assertEquals(-1, list.position(null));
+    assertEquals(1, list.size());
+  }
+
+  @Test
+  void addAfterRemovingLastElementAppendsAtTheEnd() {
+    List<String> list = createList();
+    list.add("a");
+    list.add("b");
+    list.removeByIndex(1);
+    list.add("c");
+    assertEquals(2, list.size());
+    assertEquals("a", list.get(0));
+    assertEquals("c", list.get(1));
+  }
+
+  @Test
+  void listIsReusableAfterBeingEmptied() {
+    List<String> list = createList();
+    list.add("a");
+    list.removeByIndex(0);
+    assertEquals(0, list.size());
+    list.add("b");
+    list.addByIndex(0, "a");
+    assertEquals(2, list.size());
+    assertEquals("a", list.get(0));
+    assertEquals("b", list.get(1));
+  }
+
+  @Test
   void replaceOutOfBoundsThrows() {
     List<String> list = createList();
     list.add("a");

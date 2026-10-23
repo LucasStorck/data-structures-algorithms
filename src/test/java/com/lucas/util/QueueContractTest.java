@@ -39,6 +39,35 @@ public abstract class QueueContractTest {
   }
 
   @Test
+  void keepsFifoOrderWhenPushesAndPopsInterleave() {
+    // Interleaving pushes and pops makes an array-backed circular buffer wrap around its end,
+    // and pushing many elements while others are still queued forces a resize mid-wrap.
+    Queue<Integer> queue = createQueue();
+    int nextToPush = 0;
+    int nextExpected = 0;
+    for (int round = 0; round < 50; round++) {
+      for (int i = 0; i < 3; i++)
+        queue.push(nextToPush++);
+      for (int i = 0; i < 2; i++)
+        assertEquals(nextExpected++, queue.pop());
+    }
+    assertEquals(nextToPush - nextExpected, queue.size());
+    while (queue.size() > 0)
+      assertEquals(nextExpected++, queue.pop());
+    assertEquals(nextToPush, nextExpected);
+  }
+
+  @Test
+  void queueIsReusableAfterBeingEmptied() {
+    Queue<Integer> queue = createQueue();
+    queue.push(1);
+    queue.pop();
+    queue.push(2);
+    assertEquals(2, queue.peek());
+    assertEquals(1, queue.size());
+  }
+
+  @Test
   void popOnEmptyQueueThrows() {
     assertThrows(NoSuchElementException.class, () -> createQueue().pop());
   }

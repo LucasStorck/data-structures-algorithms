@@ -39,6 +39,26 @@ public abstract class StackContractTest {
   }
 
   @Test
+  void growsPastInitialCapacity() {
+    Stack<Integer> stack = createStack();
+    for (int i = 0; i < 100; i++)
+      stack.push(i);
+    assertEquals(100, stack.size());
+    for (int i = 99; i >= 0; i--)
+      assertEquals(i, stack.pop());
+  }
+
+  @Test
+  void stackIsReusableAfterBeingEmptied() {
+    Stack<Integer> stack = createStack();
+    stack.push(1);
+    stack.pop();
+    stack.push(2);
+    assertEquals(2, stack.peek());
+    assertEquals(1, stack.size());
+  }
+
+  @Test
   void popOnEmptyStackThrows() {
     assertThrows(EmptyStackException.class, () -> createStack().pop());
   }
